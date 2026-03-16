@@ -21,7 +21,7 @@ Ping Pong Party Digital Scoreboard is a real-time table tennis scoring and track
 
 ## Technology Stack
 
-- **Frontend**: Astro 5 + Tailwind CSS
+- **Frontend**: Astro 5 + Tailwind CSS + React 18
 - **Backend**: Node.js (Astro SSR with @astrojs/node adapter)
 - **Authentication**: Auth0 (ID token required on ALL operations)
 - **Database**: SQLite (sql.js) with debounced persistence
@@ -30,6 +30,32 @@ Ping Pong Party Digital Scoreboard is a real-time table tennis scoring and track
 - **Releases**: semantic-release (automated)
 - **Development Environment**: Devenv (Nix-based)
 - **Architecture**: Multi-repository (separate repos per plugin)
+
+### React Integration
+
+Astro supports React components through the `@astrojs/react` integration. You can use React components alongside Astro components:
+
+**Client Directives** (when to hydrate React components):
+- `client:load` - Hydrate immediately on page load (for interactive UI)
+- `client:idle` - Hydrate when browser is idle
+- `client:visible` - Hydrate when component enters viewport
+- `client:only="react"` - Only render on client (skip SSR)
+
+**Example**:
+```astro
+---
+import MyReactComponent from '../components/MyReactComponent';
+---
+
+<!-- Interactive React component -->
+<MyReactComponent client:load initialValue={0} />
+```
+
+**When to Use**:
+- ✅ Interactive components (forms, counters, modals)
+- ✅ State management (useState, useEffect)
+- ✅ Complex UI with frequent updates
+- ❌ Static content (use Astro components instead for better performance)
 
 ## Development Commands
 

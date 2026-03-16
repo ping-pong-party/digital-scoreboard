@@ -13,7 +13,7 @@ Real-time ping pong scoreboard and ELO tracker built with Astro, Webcore, and Au
 
 ## Tech Stack
 
-- **Frontend**: Astro + Tailwind CSS
+- **Frontend**: Astro + React 18 + Tailwind CSS
 - **Backend**: Node.js (SSR with Astro)
 - **Database**: SQLite (sql.js)
 - **Auth**: Auth0
@@ -93,6 +93,7 @@ src/
 - `/` - Home page with navigation
 - `/kiosk` - Keyboard-driven scoreboard for TV
 - `/podium` - Today's top players display
+- `/demo` - React integration demo
 - `/players` - Player management (coming soon)
 
 ## Documentation
