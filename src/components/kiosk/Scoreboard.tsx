@@ -1,12 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Match } from '../../server/shared/types';
 import MatchStarterKeyboard from './MatchStarterKeyboard';
+import ConfirmDialog from './ConfirmDialog';
+import LeaderboardTable from './LeaderboardTable';
+import MonthlyPodiums from './MonthlyPodiums';
+import PlayerDetails from '../ratings/PlayerDetails';
+
+type DialogType = 'cancel' | 'finish' | null;
 
 export default function Scoreboard() {
   const [match, setMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showStarter, setShowStarter] = useState(false);
+  const [showDialog, setShowDialog] = useState<DialogType>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   // Fetch ongoing match
   const fetchMatch = useCallback(async () => {
@@ -51,8 +59,8 @@ export default function Scoreboard() {
   };
 
   // Finish match
-  const finishMatch = async () => {
-    if (!confirm('Finish this match?')) return;
+  const handleFinishConfirm = async () => {
+    setShowDialog(null);
 
     try {
       const response = await fetch('/api/matches/finish', {
@@ -65,9 +73,28 @@ export default function Scoreboard() {
       }
 
       await fetchMatch();
-      alert('Match finished! Ratings updated.');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to finish match');
+      console.error('Failed to finish match:', err);
+    }
+  };
+
+  // Cancel match
+  const handleCancelConfirm = async () => {
+    setShowDialog(null);
+
+    try {
+      const response = await fetch('/api/matches/cancel', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to cancel match');
+      }
+
+      await fetchMatch();
+    } catch (err) {
+      console.error('Failed to cancel match:', err);
     }
   };
 
@@ -79,6 +106,33 @@ export default function Scoreboard() {
         return;
       }
 
+      // Don't interfere when player details is open
+      if (selectedPlayerId) {
+        return;
+      }
+
+      // ESC closes dialog if open
+      if (e.key === 'Escape' && showDialog) {
+        e.preventDefault();
+        setShowDialog(null);
+        return;
+      }
+
+      // Global navigation shortcuts (work anytime)
+      if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        window.location.href = '/players';
+        return;
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        window.location.href = '/ratings';
+        return;
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        window.location.href = '/matches';
+        return;
+      }
+
       // If no match or match is completed, N starts new match
       if ((!match || match.status === 'COMPLETED') && (e.key === 'n' || e.key === 'N')) {
         e.preventDefault();
@@ -86,8 +140,8 @@ export default function Scoreboard() {
         return;
       }
 
-      // Only allow scoring if match is in progress
-      if (!match || match.status !== 'IN_PROGRESS') return;
+      // Only allow scoring/cancel if match is in progress and no dialog is open
+      if (!match || match.status !== 'IN_PROGRESS' || showDialog) return;
 
       if (e.key === 'ArrowLeft') {
         // Score for Player A
@@ -98,15 +152,19 @@ export default function Scoreboard() {
         e.preventDefault();
         updateScore(match.scoreA, match.scoreB + 1);
       } else if (e.key === 'f' || e.key === 'F') {
-        // Finish match
+        // Show finish dialog
         e.preventDefault();
-        finishMatch();
+        setShowDialog('finish');
+      } else if (e.key === 'Escape') {
+        // Show cancel dialog
+        e.preventDefault();
+        setShowDialog('cancel');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [match]);
+  }, [match, showDialog, selectedPlayerId]);
 
   if (loading) {
     return (
@@ -132,22 +190,60 @@ export default function Scoreboard() {
             setShowStarter(false);
             fetchMatch();
           }}
+          onCancel={() => {
+            setShowStarter(false);
+          }}
         />
       );
     }
 
+    // Show player details in full width if selected
+    if (selectedPlayerId) {
+      return (
+        <div className="h-screen flex flex-col p-6 gap-6">
+          <div className="flex-1 overflow-auto">
+            <PlayerDetails
+              playerId={selectedPlayerId}
+              onClose={() => setSelectedPlayerId(null)}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Show leaderboard + podiums when no match
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl font-bold text-white mb-8">No match in progress</div>
-        <button
-          onClick={() => setShowStarter(true)}
-          className="px-12 py-6 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white text-4xl font-black rounded-lg shadow-lg transition-all transform hover:scale-105"
-        >
-          Start New Match
-        </button>
-        <p className="text-2xl text-gray-400 mt-6">
-          Press <kbd className="bg-gray-700 px-4 py-2 rounded">N</kbd> to start
-        </p>
+      <div className="h-screen flex flex-col p-6 gap-6">
+        <div className="flex-1 grid grid-cols-[2fr,1fr] gap-6 overflow-hidden">
+          {/* Left: Leaderboard */}
+          <LeaderboardTable onPlayerSelected={setSelectedPlayerId} />
+
+          {/* Right: Monthly Podiums */}
+          <div className="bg-gray-800 rounded-lg p-6 overflow-auto">
+            <MonthlyPodiums />
+          </div>
+        </div>
+
+        {/* Bottom: Keyboard shortcuts */}
+        <div className="bg-gray-800 rounded-lg p-4">
+          <div className="flex items-center justify-center gap-8 text-2xl text-gray-400">
+            <div>
+              <kbd className="bg-gray-700 px-3 py-2 rounded text-cyan-400 font-bold">N</kbd> New Match
+            </div>
+            <div className="text-gray-600">|</div>
+            <div>
+              <kbd className="bg-gray-700 px-3 py-2 rounded text-green-400 font-bold">P</kbd> Players
+            </div>
+            <div className="text-gray-600">|</div>
+            <div>
+              <kbd className="bg-gray-700 px-3 py-2 rounded text-yellow-400 font-bold">R</kbd> Ratings
+            </div>
+            <div className="text-gray-600">|</div>
+            <div>
+              <kbd className="bg-gray-700 px-3 py-2 rounded text-purple-400 font-bold">M</kbd> Matches
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -159,6 +255,9 @@ export default function Scoreboard() {
         onMatchStarted={() => {
           setShowStarter(false);
           fetchMatch();
+        }}
+        onCancel={() => {
+          setShowStarter(false);
         }}
       />
     );
@@ -178,17 +277,24 @@ export default function Scoreboard() {
           <h2 className="text-4xl font-black text-green-400 mb-4">🏆 Match Completed!</h2>
           {match.playerA && match.playerB && (
             <div className="text-2xl text-white mb-4">
-              <span className="text-blue-400">{match.playerA.ratingBefore} → {match.playerA.ratingAfter}</span>
+              <span className="text-blue-400">
+                {match.playerA.name}: {match.playerA.ratingBefore} → {match.playerA.ratingAfter}
+              </span>
               {' vs '}
-              <span className="text-purple-400">{match.playerB.ratingBefore} → {match.playerB.ratingAfter}</span>
+              <span className="text-purple-400">
+                {match.playerB.name}: {match.playerB.ratingBefore} → {match.playerB.ratingAfter}
+              </span>
             </div>
           )}
           <button
             onClick={() => setShowStarter(true)}
-            className="mt-4 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-lg transition-colors"
+            className="mt-4 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-lg transition-colors shadow-lg"
           >
             Start New Match
           </button>
+          <p className="text-xl text-gray-400 mt-4">
+            Press <kbd className="bg-gray-700 px-3 py-2 rounded">N</kbd> to start new match
+          </p>
         </div>
       )}
 
@@ -197,9 +303,18 @@ export default function Scoreboard() {
         <div className="grid grid-cols-3 gap-8 items-center">
           {/* Player A */}
           <div className="text-center">
-            <h2 className="text-6xl font-bold mb-4 text-blue-400">
-              {match.playerA ? 'Player A' : 'Anonymous A'}
-            </h2>
+            <div className="flex flex-col items-center gap-4 mb-4">
+              {match.playerA?.avatarUrl && (
+                <img
+                  src={match.playerA.avatarUrl}
+                  alt={match.playerA.name}
+                  className="w-32 h-32 rounded-full border-4 border-blue-500"
+                />
+              )}
+              <h2 className="text-5xl font-bold text-blue-400">
+                {match.playerA?.name || 'Anonymous A'}
+              </h2>
+            </div>
             <div className="text-[12rem] font-black leading-none text-white">
               {match.scoreA}
             </div>
@@ -215,7 +330,7 @@ export default function Scoreboard() {
             <div className="text-8xl font-bold text-gray-500">VS</div>
             {hasWinner && (
               <button
-                onClick={finishMatch}
+                onClick={() => setShowDialog('finish')}
                 className="mt-8 px-8 py-4 bg-green-500 hover:bg-green-600 text-white text-3xl font-bold rounded-lg transition-colors animate-pulse"
               >
                 Finish Match
@@ -225,9 +340,18 @@ export default function Scoreboard() {
 
           {/* Player B */}
           <div className="text-center">
-            <h2 className="text-6xl font-bold mb-4 text-purple-400">
-              {match.playerB ? 'Player B' : 'Anonymous B'}
-            </h2>
+            <div className="flex flex-col items-center gap-4 mb-4">
+              {match.playerB?.avatarUrl && (
+                <img
+                  src={match.playerB.avatarUrl}
+                  alt={match.playerB.name}
+                  className="w-32 h-32 rounded-full border-4 border-purple-500"
+                />
+              )}
+              <h2 className="text-5xl font-bold text-purple-400">
+                {match.playerB?.name || 'Anonymous B'}
+              </h2>
+            </div>
             <div className="text-[12rem] font-black leading-none text-white">
               {match.scoreB}
             </div>
@@ -247,12 +371,38 @@ export default function Scoreboard() {
             <p><kbd className="bg-gray-700 px-4 py-2 rounded">←</kbd> Point for Player A</p>
             <p><kbd className="bg-gray-700 px-4 py-2 rounded">→</kbd> Point for Player B</p>
             {hasWinner && <p><kbd className="bg-gray-700 px-4 py-2 rounded">F</kbd> Finish Match</p>}
+            <p><kbd className="bg-gray-700 px-4 py-2 rounded">ESC</kbd> Cancel Match</p>
           </>
         )}
         {isCompleted && (
           <p><kbd className="bg-gray-700 px-4 py-2 rounded">N</kbd> Start New Match</p>
         )}
       </div>
+
+      {/* Dialogs */}
+      {showDialog === 'cancel' && (
+        <ConfirmDialog
+          title="⚠️ Cancel Match?"
+          message="This will delete the match without saving. No ratings will be changed."
+          confirmText="Yes, Cancel"
+          cancelText="No, Go Back"
+          variant="danger"
+          onConfirm={handleCancelConfirm}
+          onCancel={() => setShowDialog(null)}
+        />
+      )}
+
+      {showDialog === 'finish' && (
+        <ConfirmDialog
+          title="🏆 Finish Match?"
+          message="This will complete the match and update player ratings."
+          confirmText="Finish Match"
+          cancelText="Keep Playing"
+          variant="success"
+          onConfirm={handleFinishConfirm}
+          onCancel={() => setShowDialog(null)}
+        />
+      )}
     </div>
   );
 }

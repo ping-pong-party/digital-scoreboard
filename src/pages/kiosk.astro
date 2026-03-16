@@ -1,21 +1,4 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Scoreboard from '../components/kiosk/Scoreboard';
+// Redirect /kiosk to / (now the default page)
+return Astro.redirect('/', 301);
 ---
-
-<Layout title="Kiosk - Ping Pong Party">
-  <main class="min-h-screen bg-gray-900 text-white p-8">
-    <div class="max-w-7xl mx-auto">
-      <h1 class="text-6xl font-black text-center mb-8">Live Scoreboard</h1>
-
-      <!-- React Scoreboard component -->
-      <Scoreboard client:load />
-
-      <div class="text-center mt-8">
-        <a href="/" class="text-2xl text-blue-400 hover:text-blue-300 transition-colors">
-          ← Back to Home
-        </a>
-      </div>
-    </div>
-  </main>
-</Layout>

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PlayerDetails from './PlayerDetails';
 
 interface LeaderboardEntry {
   id: string;
@@ -21,6 +22,9 @@ export default function Leaderboard({ limit = 10 }: LeaderboardProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const entryRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -40,6 +44,43 @@ export default function Leaderboard({ limit = 10 }: LeaderboardProps) {
 
     fetchLeaderboard();
   }, [limit]);
+
+  // Scroll highlighted entry into view
+  useEffect(() => {
+    if (entryRefs.current[highlightedIndex]) {
+      entryRefs.current[highlightedIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [highlightedIndex]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (selectedPlayerId) return; // Don't navigate when player details is open
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setHighlightedIndex((prev) => Math.min(prev + 1, leaderboard.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setHighlightedIndex((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (leaderboard[highlightedIndex]) {
+          setSelectedPlayerId(leaderboard[highlightedIndex].id);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [highlightedIndex, leaderboard, selectedPlayerId]);
 
   if (loading) {
     return (
@@ -87,14 +128,33 @@ export default function Leaderboard({ limit = 10 }: LeaderboardProps) {
     return 'text-gray-500';
   };
 
+  // Show player details if a player is selected
+  if (selectedPlayerId) {
+    return (
+      <PlayerDetails
+        playerId={selectedPlayerId}
+        onClose={() => setSelectedPlayerId(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {leaderboard.map((entry) => (
+      {leaderboard.map((entry, index) => {
+        const isHighlighted = index === highlightedIndex;
+
+        return (
         <div
           key={entry.id}
-          className={`bg-gray-800 rounded-lg p-6 flex items-center justify-between transition-all hover:bg-gray-750 ${
-            entry.rank <= 3 ? 'border-2 border-yellow-500/50' : ''
+          ref={(el) => {
+            entryRefs.current[index] = el;
+          }}
+          className={`bg-gray-800 rounded-lg p-6 flex items-center justify-between transition-all cursor-pointer ${
+            entry.rank <= 3 ? 'border-2 border-yellow-500/50' : 'border-2 border-transparent'
+          } ${
+            isHighlighted ? 'ring-4 ring-cyan-500 scale-105 shadow-2xl' : 'hover:bg-gray-750'
           }`}
+          onClick={() => setSelectedPlayerId(entry.id)}
         >
           {/* Rank and Avatar */}
           <div className="flex items-center gap-6 flex-1">
@@ -150,7 +210,8 @@ export default function Leaderboard({ limit = 10 }: LeaderboardProps) {
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

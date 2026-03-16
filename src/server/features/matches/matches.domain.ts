@@ -6,6 +6,7 @@ import { database, saveDb } from '../../db/index';
 import type { Match as SharedMatch, MatchId } from '../../shared/types';
 import { now } from '../../shared/utils';
 import { matchCreateSchema, matchUpdateScoreSchema, matchAssignPlayersSchema } from './matches.types';
+import { playerById, getGravatarUrl } from '../players/players.domain';
 
 export type MatchStatus = 'IN_PROGRESS' | 'COMPLETED';
 export type Match = SharedMatch;
@@ -155,18 +156,41 @@ export async function ongoingMatch(): Promise<Match | null> {
   }
 
   const row = result[0].values[0];
+
+  // Fetch player data if players exist
+  let playerAData = undefined;
+  let playerBData = undefined;
+
+  if (row[1]) {
+    const player = await playerById(row[1] as string);
+    if (player) {
+      playerAData = {
+        id: row[1] as any,
+        name: player.name,
+        avatarUrl: getGravatarUrl(player.email),
+        ratingBefore: row[2] as number,
+        ratingAfter: (row[3] as number | null) || undefined,
+      };
+    }
+  }
+
+  if (row[4]) {
+    const player = await playerById(row[4] as string);
+    if (player) {
+      playerBData = {
+        id: row[4] as any,
+        name: player.name,
+        avatarUrl: getGravatarUrl(player.email),
+        ratingBefore: row[5] as number,
+        ratingAfter: (row[6] as number | null) || undefined,
+      };
+    }
+  }
+
   return {
     id: row[0] as MatchId,
-    playerA: row[1] ? {
-      id: row[1] as any,
-      ratingBefore: row[2] as number,
-      ratingAfter: (row[3] as number | null) || undefined,
-    } : undefined,
-    playerB: row[4] ? {
-      id: row[4] as any,
-      ratingBefore: row[5] as number,
-      ratingAfter: (row[6] as number | null) || undefined,
-    } : undefined,
+    playerA: playerAData,
+    playerB: playerBData,
     scoreA: row[7] as number,
     scoreB: row[8] as number,
     status: row[9] as MatchStatus,
@@ -174,6 +198,15 @@ export async function ongoingMatch(): Promise<Match | null> {
     completedAt: (row[11] as number | null) || undefined,
     rated: (row[13] as number) !== 0,
   };
+}
+
+export async function deleteMatch(matchId: string): Promise<void> {
+  const db = await database();
+
+  const stmt = db.prepare('DELETE FROM matches WHERE id = ?');
+  stmt.run([matchId]);
+
+  saveDb();
 }
 
 export async function allMatches(): Promise<{ matches: Match[]; totalCount: number }> {
@@ -189,18 +222,40 @@ export async function allMatches(): Promise<{ matches: Match[]; totalCount: numb
   const matches: Match[] = [];
   if (result.length > 0) {
     for (const row of result[0].values) {
+      // Fetch player data if players exist
+      let playerAData = undefined;
+      let playerBData = undefined;
+
+      if (row[1]) {
+        const player = await playerById(row[1] as string);
+        if (player) {
+          playerAData = {
+            id: row[1] as any,
+            name: player.name,
+            avatarUrl: getGravatarUrl(player.email),
+            ratingBefore: row[2] as number,
+            ratingAfter: (row[3] as number | null) || undefined,
+          };
+        }
+      }
+
+      if (row[4]) {
+        const player = await playerById(row[4] as string);
+        if (player) {
+          playerBData = {
+            id: row[4] as any,
+            name: player.name,
+            avatarUrl: getGravatarUrl(player.email),
+            ratingBefore: row[5] as number,
+            ratingAfter: (row[6] as number | null) || undefined,
+          };
+        }
+      }
+
       matches.push({
         id: row[0] as MatchId,
-        playerA: row[1] ? {
-          id: row[1] as any,
-          ratingBefore: row[2] as number,
-          ratingAfter: (row[3] as number | null) || undefined,
-        } : undefined,
-        playerB: row[4] ? {
-          id: row[4] as any,
-          ratingBefore: row[5] as number,
-          ratingAfter: (row[6] as number | null) || undefined,
-        } : undefined,
+        playerA: playerAData,
+        playerB: playerBData,
         scoreA: row[7] as number,
         scoreB: row[8] as number,
         status: row[9] as MatchStatus,

@@ -1,37 +1,53 @@
 import { useState, useEffect, useRef } from 'react';
 import type { PlayerDTO } from '../../server/features/players/players.types';
+import AddPlayerDialog from './AddPlayerDialog';
 
 interface MatchStarterKeyboardProps {
   onMatchStarted: () => void;
+  onCancel: () => void;
 }
 
-export default function MatchStarterKeyboard({ onMatchStarted }: MatchStarterKeyboardProps) {
+export default function MatchStarterKeyboard({ onMatchStarted, onCancel }: MatchStarterKeyboardProps) {
   const [players, setPlayers] = useState<PlayerDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [selectedPlayerA, setSelectedPlayerA] = useState<string | null>(null);
   const [selectedPlayerB, setSelectedPlayerB] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [showAddPlayer, setShowAddPlayer] = useState(false);
   const playerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Fetch players
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      try {
-        const response = await fetch('/api/players');
-        if (!response.ok) throw new Error('Failed to fetch players');
-        const data = await response.json();
-        setPlayers(data);
-      } catch (error) {
-        console.error('Error fetching players:', error);
-        alert('Failed to load players');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPlayers = async () => {
+    try {
+      const response = await fetch('/api/players');
+      if (!response.ok) throw new Error('Failed to fetch players');
+      const data = await response.json();
+      setPlayers(data);
+    } catch (error) {
+      console.error('Error fetching players:', error);
+      alert('Failed to load players');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPlayers();
   }, []);
+
+  // Handle new player added
+  const handlePlayerAdded = async (playerId: string) => {
+    setShowAddPlayer(false);
+    await fetchPlayers();
+
+    // Auto-select the new player
+    if (!selectedPlayerA) {
+      setSelectedPlayerA(playerId);
+    } else if (!selectedPlayerB) {
+      setSelectedPlayerB(playerId);
+    }
+  };
 
   // Scroll highlighted player into view
   useEffect(() => {
@@ -90,8 +106,8 @@ export default function MatchStarterKeyboard({ onMatchStarted }: MatchStarterKey
   // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      // Ignore if typing in input or if dialog is open
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || showAddPlayer) {
         return;
       }
 
@@ -134,21 +150,28 @@ export default function MatchStarterKeyboard({ onMatchStarted }: MatchStarterKey
         }
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        // Deselect in reverse order
+        // Deselect in reverse order, or cancel if nothing selected
         if (selectedPlayerB) {
           setSelectedPlayerB(null);
         } else if (selectedPlayerA) {
           setSelectedPlayerA(null);
+        } else {
+          // No players selected, go back to main screen
+          onCancel();
         }
       } else if (e.key === 's' || e.key === 'S') {
         e.preventDefault();
         handleStartMatch();
+      } else if (e.key === '+' || e.key === 'a' || e.key === 'A') {
+        // Open add player dialog
+        e.preventDefault();
+        setShowAddPlayer(true);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [highlightedIndex, players, selectedPlayerA, selectedPlayerB]);
+  }, [highlightedIndex, players, selectedPlayerA, selectedPlayerB, showAddPlayer]);
 
   if (loading) {
     return (
@@ -167,14 +190,10 @@ export default function MatchStarterKeyboard({ onMatchStarted }: MatchStarterKey
   const playerBData = getPlayerById(selectedPlayerB);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header with selected players */}
-      <div className="bg-gray-800 rounded-3xl p-8 shadow-2xl">
-        <h2 className="text-5xl font-black text-center mb-8 text-white">
-          Select Players with Arrow Keys
-        </h2>
-
-        <div className="grid grid-cols-2 gap-8 mb-8">
+      <div className="bg-gray-800 rounded-3xl p-6 shadow-2xl">
+        <div className="grid grid-cols-2 gap-8">
           {/* Player A */}
           <div className="text-center">
             <h3 className="text-3xl font-bold text-blue-400 mb-4">Player A</h3>
@@ -319,10 +338,19 @@ export default function MatchStarterKeyboard({ onMatchStarted }: MatchStarterKey
         <div className="grid grid-cols-2 gap-4 text-xl text-gray-300">
           <div><kbd className="bg-gray-700 px-3 py-2 rounded">↑ ↓ ← →</kbd> Navigate players</div>
           <div><kbd className="bg-gray-700 px-3 py-2 rounded">Enter</kbd> Select player</div>
-          <div><kbd className="bg-gray-700 px-3 py-2 rounded">ESC</kbd> Deselect player</div>
+          <div><kbd className="bg-gray-700 px-3 py-2 rounded">ESC</kbd> {selectedPlayerA || selectedPlayerB ? 'Deselect / Cancel' : 'Cancel & go back'}</div>
           <div><kbd className="bg-gray-700 px-3 py-2 rounded">S</kbd> Start match</div>
+          <div><kbd className="bg-gray-700 px-3 py-2 rounded">A</kbd> Add new player</div>
         </div>
       </div>
+
+      {/* Add Player Dialog */}
+      {showAddPlayer && (
+        <AddPlayerDialog
+          onPlayerAdded={handlePlayerAdded}
+          onCancel={() => setShowAddPlayer(false)}
+        />
+      )}
     </div>
   );
 }

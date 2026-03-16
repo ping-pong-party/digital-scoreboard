@@ -1,16 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Leaderboard from '../components/ratings/Leaderboard';
+import NavigationHints from '../components/shared/NavigationHints';
 ---
 
 <Layout title="Ratings - Ping Pong Party">
   <main class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-8">
     <div class="max-w-7xl mx-auto">
-      <div class="mb-8 text-center">
-        <h1 class="text-7xl font-black text-white mb-4">⭐ Leaderboard</h1>
-        <p class="text-2xl text-gray-400">Top players ranked by ELO rating</p>
-      </div>
-
       <!-- Leaderboard Component -->
       <Leaderboard client:load limit={20} />
 
@@ -46,11 +42,8 @@ import Leaderboard from '../components/ratings/Leaderboard';
         </div>
       </div>
 
-      <div class="text-center mt-12">
-        <a href="/" class="text-2xl text-blue-400 hover:text-blue-300 transition-colors">
-          ← Back to Home
-        </a>
-      </div>
+      <!-- Navigation hints -->
+      <NavigationHints client:load />
     </div>
   </main>
 </Layout>

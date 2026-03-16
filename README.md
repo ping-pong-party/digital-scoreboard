@@ -77,47 +77,70 @@ npm run preview
 src/
 ├── layouts/          # Astro layouts
 ├── pages/            # Astro pages (routes)
-│   ├── index.astro   # Home page
-│   ├── kiosk.astro   # Kiosk mode for TV
-│   └── podium.astro  # Today's leaderboard
+│   ├── index.astro   # Main scoreboard (default kiosk view)
+│   ├── players.astro # Player management
+│   ├── ratings.astro # ELO leaderboard
+│   ├── matches.astro # Match history
+│   └── podium.astro  # Top 3 display
 ├── components/       # Reusable components
+│   ├── kiosk/       # Scoreboard, match starter, leaderboard
+│   ├── players/     # Player CRUD
+│   ├── ratings/     # Rating displays
+│   ├── matches/     # Match history
+│   └── shared/      # Navigation hints, dialogs
 ├── middleware/       # Auth0 middleware
 └── server/          # Backend logic
     ├── db/          # SQLite database
     ├── features/    # Vertical slice features
     │   ├── players/
     │   ├── matches/
-    │   ├── ratings/
-    │   └── kiosk/
+    │   └── ratings/
     └── shared/      # Shared types and utils
 ```
 
-## Keyboard Controls (Kiosk Mode)
+## Keyboard Controls
 
-### Match Management
-- **N** - Start new match (from scoreboard)
+### Global Navigation (Works Everywhere)
+- **P** - Go to Players page
+- **R** - Go to Ratings page
+- **M** - Go to Matches page
+- **ESC** or **H** - Return to Home (main scoreboard)
+
+### Home Screen / Kiosk Mode
+- **N** - Start new match
+- **1** - Cycle leaderboard/view (Today → Week → Month → All-Time / Overview → Opponents → History)
+- **↑ ↓** - Navigate through leaderboard/opponents
+- **Enter** - View player details / View head-to-head matches
+- **ESC** - Close player details / Go back
+
+### Ratings Page & Player Details
+- **↑ ↓** - Navigate through players/opponents
+- **Enter** - View player details / View head-to-head
+- **ESC** - Close details / Go back
+- **1** - Cycle view (Overview → Opponents → History)
 
 ### Player Selection (Grid Navigation)
 - **↑ ↓ ← →** - Navigate through players
 - **Enter** - Select highlighted player
   - First selection = Player A (blue border)
   - Second selection = Player B (purple border)
-- **ESC** - Deselect player (reverse order)
+- **ESC** - Deselect player / Cancel (reverse order)
+- **A** - Add new player
 - **S** - Start match with selected players
 
 ### During Match
 - **←** (Left Arrow) - Award point to Player A
 - **→** (Right Arrow) - Award point to Player B
 - **F** - Finish match (when winner exists)
+- **ESC** - Cancel match (with confirmation)
 
 ## Routes
 
-- `/` - Home page with navigation
-- `/kiosk` - **Full interactive scoreboard**
-  - Select players
-  - Live scoring with keyboard controls
-  - Automatic ELO calculation
+- `/` - **Main scoreboard** (default kiosk view)
+  - Leaderboard (Today/Week/Month/All-Time)
+  - Monthly podiums (last 3 months)
   - Start new matches
+  - Live scoring with keyboard controls
 - `/players` - **Player management**
   - Add/delete players
   - Gravatar integration

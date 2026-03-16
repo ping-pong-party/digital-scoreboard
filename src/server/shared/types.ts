@@ -15,11 +15,15 @@ export interface Match {
   id: MatchId;
   playerA?: {
     id: PlayerId;
+    name?: string;
+    avatarUrl?: string;
     ratingBefore: number;
     ratingAfter?: number;
   };
   playerB?: {
     id: PlayerId;
+    name?: string;
+    avatarUrl?: string;
     ratingBefore: number;
     ratingAfter?: number;
   };
