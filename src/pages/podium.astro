@@ -1,0 +1,71 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// This will be replaced with actual data from the API
+const topPlayers = [
+  { name: 'Player 1', rating: 1250, wins: 5 },
+  { name: 'Player 2', rating: 1180, wins: 4 },
+  { name: 'Player 3', rating: 1120, wins: 3 },
+];
+---
+
+<Layout title="Today's Podium - Ping Pong Party">
+  <main class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-pink-900 p-12">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-8xl font-black text-center mb-16 text-white tracking-tight">
+        Today's Champions
+      </h1>
+
+      <div class="flex items-end justify-center gap-8 mb-16">
+        <!-- 2nd Place -->
+        <div class="flex flex-col items-center">
+          <div class="bg-gradient-to-br from-gray-400 to-gray-600 w-48 h-64 rounded-t-3xl flex items-center justify-center mb-4 shadow-2xl">
+            <span class="text-9xl">🥈</span>
+          </div>
+          <div class="text-center">
+            <h2 class="text-4xl font-bold text-white mb-2">{topPlayers[1]?.name}</h2>
+            <p class="text-3xl text-gray-300">{topPlayers[1]?.rating} ELO</p>
+            <p class="text-2xl text-gray-400">{topPlayers[1]?.wins} wins today</p>
+          </div>
+        </div>
+
+        <!-- 1st Place -->
+        <div class="flex flex-col items-center -mt-16">
+          <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 w-56 h-80 rounded-t-3xl flex items-center justify-center mb-4 shadow-2xl animate-pulse">
+            <span class="text-9xl">🏆</span>
+          </div>
+          <div class="text-center">
+            <h2 class="text-5xl font-black text-yellow-300 mb-2">{topPlayers[0]?.name}</h2>
+            <p class="text-4xl text-white font-bold">{topPlayers[0]?.rating} ELO</p>
+            <p class="text-3xl text-gray-300">{topPlayers[0]?.wins} wins today</p>
+          </div>
+        </div>
+
+        <!-- 3rd Place -->
+        <div class="flex flex-col items-center">
+          <div class="bg-gradient-to-br from-amber-600 to-amber-800 w-48 h-56 rounded-t-3xl flex items-center justify-center mb-4 shadow-2xl">
+            <span class="text-9xl">🥉</span>
+          </div>
+          <div class="text-center">
+            <h2 class="text-4xl font-bold text-white mb-2">{topPlayers[2]?.name}</h2>
+            <p class="text-3xl text-gray-300">{topPlayers[2]?.rating} ELO</p>
+            <p class="text-2xl text-gray-400">{topPlayers[2]?.wins} wins today</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="/" class="text-2xl text-white hover:text-blue-300 transition-colors">
+          ← Back to Home
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Auto-refresh every 30 seconds to show updated leaderboard
+  setTimeout(() => {
+    window.location.reload();
+  }, 30000);
+</script>

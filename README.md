@@ -1,43 +1,104 @@
-# Astro Starter Kit: Minimal
+# Ping Pong Party - Digital Scoreboard
 
-```sh
-npm create astro@latest -- --template minimal
+Real-time ping pong scoreboard and ELO tracker built with Astro, Webcore, and Auth0.
+
+## Features
+
+- 🎮 **Kiosk Mode** - Keyboard-driven scoreboard for 55" TV display
+- 🏆 **Podium Display** - Dedicated page showing today's top players
+- 📊 **ELO Rating System** - Track player rankings with K-factor 32
+- 🔐 **Auth0 Integration** - Secure authentication on all operations
+- 📱 **PWA Support** - Mobile-friendly progressive web app
+- 🔔 **Push Notifications** - Get notified when matches start
+
+## Tech Stack
+
+- **Frontend**: Astro + Tailwind CSS
+- **Backend**: Node.js (SSR with Astro)
+- **Database**: SQLite (sql.js)
+- **Auth**: Auth0
+- **CI/CD**: Dagger + GitHub Actions
+- **Development**: Devenv (Nix)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 20
+- npm or pnpm
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env
+
+# Configure Auth0 settings in .env
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Development
 
-## 🚀 Project Structure
+```bash
+# Start development server
+npm run dev
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+# Visit http://localhost:4321
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### Build
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```bash
+# Type check
+npm run type-check
 
-Any static assets, like images, can be placed in the `public/` directory.
+# Build for production
+npm run build
 
-## 🧞 Commands
+# Preview production build
+npm run preview
+```
 
-All commands are run from the root of the project, from a terminal:
+## Project Structure
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+```
+src/
+├── layouts/          # Astro layouts
+├── pages/            # Astro pages (routes)
+│   ├── index.astro   # Home page
+│   ├── kiosk.astro   # Kiosk mode for TV
+│   └── podium.astro  # Today's leaderboard
+├── components/       # Reusable components
+├── middleware/       # Auth0 middleware
+└── server/          # Backend logic
+    ├── db/          # SQLite database
+    ├── features/    # Vertical slice features
+    │   ├── players/
+    │   ├── matches/
+    │   ├── ratings/
+    │   └── kiosk/
+    └── shared/      # Shared types and utils
+```
 
-## 👀 Want to learn more?
+## Keyboard Controls (Kiosk Mode)
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- **←** (Left Arrow) - Award point to Player A
+- **→** (Right Arrow) - Award point to Player B
+- **S** - Start new match
+
+## Routes
+
+- `/` - Home page with navigation
+- `/kiosk` - Keyboard-driven scoreboard for TV
+- `/podium` - Today's top players display
+- `/players` - Player management (coming soon)
+
+## Documentation
+
+See [CLAUDE.md](CLAUDE.md) for AI assistant instructions and architecture details.
+
+## License
+
+Private - Ping Pong Party Organization
