@@ -18,6 +18,7 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
   const [loading, setLoading] = useState(true);
   const [playerA, setPlayerA] = useState<string | null>(null);
   const [playerB, setPlayerB] = useState<string | null>(null);
+  const [tvPin, setTvPin] = useState<string>('');
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,11 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
       return;
     }
 
+    if (!tvPin || tvPin.length !== 4) {
+      alert('Please enter the 4-digit TV PIN');
+      return;
+    }
+
     setStarting(true);
 
     try {
@@ -55,13 +61,23 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          playerAId: playerA,
-          playerBId: playerB,
+          playerA: { id: playerA },
+          playerB: { id: playerB },
+          tvPin: tvPin,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
+
+        // Handle PIN error specifically
+        if (response.status === 401 && error.field === 'tvPin') {
+          alert('❌ ' + error.error);
+          setTvPin(''); // Clear PIN on error
+          setStarting(false);
+          return;
+        }
+
         throw new Error(error.error || 'Failed to start match');
       }
 
@@ -119,7 +135,7 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
 
       {/* Selection Status */}
       <div className="bg-gray-800 px-4 py-4 border-b border-gray-700">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-3">
           <div className={`p-3 rounded-lg border-2 ${playerA ? 'border-blue-500 bg-blue-900/30' : 'border-gray-600 bg-gray-700/30'}`}>
             <div className="text-xs text-gray-400 mb-1">Player A</div>
             <div className="text-sm font-semibold text-white truncate">
@@ -131,6 +147,25 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
             <div className="text-sm font-semibold text-white truncate">
               {playerB ? players.find((p) => p.id === playerB)?.name : 'Not selected'}
             </div>
+          </div>
+        </div>
+
+        {/* TV PIN Input */}
+        <div className="p-3 rounded-lg border-2 border-cyan-500 bg-cyan-900/20">
+          <label className="block text-xs text-cyan-400 mb-2 font-semibold">
+            TV PIN Code (check TV screen)
+          </label>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={4}
+            value={tvPin}
+            onChange={(e) => setTvPin(e.target.value.replace(/\D/g, ''))}
+            placeholder="Enter 4-digit PIN"
+            className="w-full bg-gray-900 border-2 border-cyan-600 rounded-lg px-4 py-3 text-2xl font-mono text-center text-white tracking-widest focus:outline-none focus:border-cyan-400"
+          />
+          <div className="text-xs text-gray-400 mt-2 text-center">
+            Find the PIN on the TV screen to start the match
           </div>
         </div>
       </div>
@@ -200,7 +235,7 @@ export default function MobileMatchStarter({ onMatchStarted, onCancel }: MobileM
       </div>
 
       {/* Start Match Button */}
-      {playerA && playerB && (
+      {playerA && playerB && tvPin.length === 4 && (
         <div className="bg-gray-800 p-4 border-t border-gray-700">
           <button
             onClick={handleStartMatch}

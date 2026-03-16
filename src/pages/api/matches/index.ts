@@ -5,6 +5,7 @@ import { playerById } from '../../../server/features/players/players.domain';
 import { generateId } from '../../../server/shared/utils';
 import { now } from '../../../server/shared/utils';
 import type { Match, MatchId } from '../../../server/shared/types';
+import { validatePin, refreshPin } from '../../../server/features/auth/session.domain';
 
 // GET /api/matches - Get all matches
 export const GET: APIRoute = async () => {
@@ -28,7 +29,23 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { playerA, playerB } = body;
+    const { playerA, playerB, tvPin } = body;
+
+    // Validate TV PIN if provided (required for mobile clients)
+    if (tvPin !== undefined) {
+      if (!validatePin(tvPin)) {
+        return new Response(
+          JSON.stringify({
+            error: 'Invalid or expired TV PIN. Please check the PIN displayed on the TV screen.',
+            field: 'tvPin'
+          }),
+          {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
 
     // Validate input
     const validated = validateMatchCreation(playerA, playerB);
@@ -77,6 +94,9 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     await createMatch(match);
+
+    // Refresh PIN after match is created (for security)
+    refreshPin();
 
     return new Response(JSON.stringify(match), {
       status: 201,

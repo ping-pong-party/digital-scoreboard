@@ -5,6 +5,7 @@ import ConfirmDialog from './ConfirmDialog';
 import LeaderboardTable from './LeaderboardTable';
 import MonthlyPodiums from './MonthlyPodiums';
 import PlayerDetails from '../ratings/PlayerDetails';
+import TvPinDisplay from './TvPinDisplay';
 
 type DialogType = 'cancel' | 'finish' | null;
 
@@ -214,6 +215,9 @@ export default function Scoreboard() {
     // Show leaderboard + podiums when no match
     return (
       <div className="h-screen flex flex-col p-6 gap-6">
+        {/* Top: TV PIN Display */}
+        <TvPinDisplay />
+
         <div className="flex-1 grid grid-cols-[2fr,1fr] gap-6 overflow-hidden">
           {/* Left: Leaderboard */}
           <LeaderboardTable onPlayerSelected={setSelectedPlayerId} />

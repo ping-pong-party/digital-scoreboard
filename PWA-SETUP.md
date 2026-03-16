@@ -9,6 +9,7 @@ This application includes Progressive Web App (PWA) support, allowing users to i
 - **Touch-Optimized UI**: Separate mobile interface with large, touch-friendly buttons
 - **Auto-Detection**: Automatically shows mobile UI on phones/tablets, kiosk UI on desktop/TV
 - **Haptic Feedback**: Vibration feedback on touch interactions
+- **TV PIN Security**: Mobile requires 4-digit PIN from TV screen to start matches (prevents cheating)
 - **Background Sync**: Queue score updates when offline (to be implemented)
 - **Push Notifications**: Ready for match notifications (to be implemented)
 

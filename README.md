@@ -212,6 +212,17 @@ The app includes full PWA support for mobile devices:
 
 3. See [PWA-SETUP.md](PWA-SETUP.md) for complete setup and testing guide
 
+### Security: TV PIN System
+
+To prevent remote match creation abuse (e.g., someone registering fake matches from home), the mobile app requires a PIN displayed on the TV screen:
+
+1. **TV displays a 4-digit PIN** when idle (refreshes every 5 minutes)
+2. **Mobile users must enter the PIN** to start a match
+3. **PIN validates** that the person is physically at the TV
+4. **New PIN generated** after each match
+
+This ensures users must be present at the ping pong table to register matches.
+
 ### Mobile Features
 
 - Large touch-friendly score buttons
@@ -220,6 +231,7 @@ The app includes full PWA support for mobile devices:
 - Pull-to-refresh for leaderboard
 - Works offline with cached data
 - Real-time updates when online
+- **TV PIN Authentication**: Requires 4-digit PIN from TV screen to start matches (prevents remote cheating)
 
 ## Documentation
 
