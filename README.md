@@ -4,9 +4,19 @@ Real-time ping pong scoreboard and ELO tracker built with Astro, Webcore, and Au
 
 ## Features
 
-- 🎮 **Kiosk Mode** - Keyboard-driven scoreboard for 55" TV display
-- 🏆 **Podium Display** - Dedicated page showing today's top players
-- 📊 **ELO Rating System** - Track player rankings with K-factor 32
+### ✅ Implemented
+- 🎮 **Kiosk Mode** - Full keyboard-driven scoreboard for 55" TV
+  - Player selection with avatars
+  - Live scoring (← for Player A, → for Player B)
+  - Auto-finish when winner detected
+  - Real-time polling updates
+- 👥 **Player Management** - Complete CRUD with Gravatar integration
+- 🏆 **ELO Rating System** - Automatic calculation with K-factor 32
+- ⭐ **Leaderboard** - Ranked by rating with win/loss stats
+- 🥇 **Podium Display** - Top 3 players for hallway TV display
+- 📊 **Match Tracking** - Full history with rating changes
+
+### 🚧 Planned
 - 🔐 **Auth0 Integration** - Secure authentication on all operations
 - 📱 **PWA Support** - Mobile-friendly progressive web app
 - 🔔 **Push Notifications** - Get notified when matches start
@@ -105,7 +115,16 @@ src/
   - Add/delete players
   - Gravatar integration
   - View ratings
-- `/podium` - Today's top players display (static demo)
+- `/ratings` - **ELO Leaderboard**
+  - Top players ranked by rating
+  - Win/loss stats
+  - Win rate percentages
+  - Total matches played
+- `/podium` - **Top 3 Players Display**
+  - Live data from API
+  - Player avatars
+  - Auto-refresh every 30s
+  - Perfect for hallway TV display
 - `/demo` - React integration demo
 
 ## API Endpoints
@@ -122,6 +141,9 @@ src/
 - `GET /api/matches/ongoing` - Get current match
 - `POST /api/matches/score` - Update score
 - `POST /api/matches/finish` - Finish match & calculate ELO
+
+**Ratings:**
+- `GET /api/ratings/leaderboard?limit=10` - Get top players with stats
 
 ## Documentation
 

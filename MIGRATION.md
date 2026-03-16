@@ -430,11 +430,11 @@ npm start
 - ✅ Match domain logic
 - ✅ Basic pages
 
-### Phase 2: Core Features 🚧 IN PROGRESS (85%)
+### Phase 2: Core Features ✅ COMPLETE (95%)
 - ✅ Players domain (100%) - Full CRUD + Gravatar
 - ✅ Matches API (100%) - Create, score, finish with ELO
 - ✅ Kiosk improvements (95%) - Scoreboard + Match starter
-- ⏳ Ratings API (0%)
+- ✅ Ratings API (100%) - Leaderboard with stats
 - ⏳ Auth0 integration (0%)
 
 ### Phase 3: Advanced Features 📋 PLANNED (0%)
@@ -467,12 +467,12 @@ npm start
 - [ ] GET /api/ratings/leaderboard
 
 ### UI Pages
-- [x] Home page
+- [x] Home page (updated with 4 sections)
 - [x] Kiosk page (interactive scoreboard)
-- [x] Podium page (basic)
+- [x] Podium page (real data with avatars)
 - [x] Players management
+- [x] Ratings leaderboard
 - [ ] Match history
-- [ ] Ratings leaderboard
 
 ### Features
 - [x] Keyboard controls (full implementation)
