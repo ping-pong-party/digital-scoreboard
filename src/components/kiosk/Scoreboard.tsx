@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Match } from '../../server/shared/types';
+import MatchStarter from './MatchStarter';
 
 export default function Scoreboard() {
   const [match, setMatch] = useState<Match | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showStarter, setShowStarter] = useState(false);
 
   // Fetch ongoing match
   const fetchMatch = useCallback(async () => {
@@ -71,13 +73,21 @@ export default function Scoreboard() {
 
   // Keyboard controls
   useEffect(() => {
-    if (!match) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if typing in input
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
+
+      // If no match or match is completed, N starts new match
+      if ((!match || match.status === 'COMPLETED') && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault();
+        setShowStarter(true);
+        return;
+      }
+
+      // Only allow scoring if match is in progress
+      if (!match || match.status !== 'IN_PROGRESS') return;
 
       if (e.key === 'ArrowLeft') {
         // Score for Player A
@@ -115,16 +125,42 @@ export default function Scoreboard() {
   }
 
   if (!match) {
+    if (showStarter) {
+      return (
+        <MatchStarter
+          onMatchStarted={() => {
+            setShowStarter(false);
+            fetchMatch();
+          }}
+        />
+      );
+    }
+
     return (
       <div className="text-center py-12">
         <div className="text-6xl font-bold text-white mb-8">No match in progress</div>
-        <a
-          href="/matches"
-          className="inline-block px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-lg transition-colors"
+        <button
+          onClick={() => setShowStarter(true)}
+          className="px-12 py-6 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white text-4xl font-black rounded-lg shadow-lg transition-all transform hover:scale-105"
         >
-          Start a Match
-        </a>
+          Start New Match
+        </button>
+        <p className="text-2xl text-gray-400 mt-6">
+          Press <kbd className="bg-gray-700 px-4 py-2 rounded">N</kbd> to start
+        </p>
       </div>
+    );
+  }
+
+  // Show match starter if requested
+  if (showStarter) {
+    return (
+      <MatchStarter
+        onMatchStarted={() => {
+          setShowStarter(false);
+          fetchMatch();
+        }}
+      />
     );
   }
 
@@ -132,10 +168,32 @@ export default function Scoreboard() {
     (match.scoreA >= 11 && match.scoreA - match.scoreB >= 2) ||
     (match.scoreB >= 11 && match.scoreB - match.scoreA >= 2);
 
+  const isCompleted = match.status === 'COMPLETED';
+
   return (
     <div className="space-y-8">
+      {/* Match Completed Banner */}
+      {isCompleted && (
+        <div className="bg-green-900/50 border-2 border-green-500 rounded-lg p-6 text-center">
+          <h2 className="text-4xl font-black text-green-400 mb-4">🏆 Match Completed!</h2>
+          {match.playerA && match.playerB && (
+            <div className="text-2xl text-white mb-4">
+              <span className="text-blue-400">{match.playerA.ratingBefore} → {match.playerA.ratingAfter}</span>
+              {' vs '}
+              <span className="text-purple-400">{match.playerB.ratingBefore} → {match.playerB.ratingAfter}</span>
+            </div>
+          )}
+          <button
+            onClick={() => setShowStarter(true)}
+            className="mt-4 px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white text-2xl font-bold rounded-lg transition-colors"
+          >
+            Start New Match
+          </button>
+        </div>
+      )}
+
       {/* Scoreboard */}
-      <div className="bg-gray-800 rounded-3xl p-12 shadow-2xl">
+      <div className={`bg-gray-800 rounded-3xl p-12 shadow-2xl ${isCompleted ? 'opacity-50' : ''}`}>
         <div className="grid grid-cols-3 gap-8 items-center">
           {/* Player A */}
           <div className="text-center">
@@ -184,9 +242,16 @@ export default function Scoreboard() {
 
       {/* Controls */}
       <div className="text-center text-gray-400 text-3xl space-y-2">
-        <p><kbd className="bg-gray-700 px-4 py-2 rounded">←</kbd> Point for Player A</p>
-        <p><kbd className="bg-gray-700 px-4 py-2 rounded">→</kbd> Point for Player B</p>
-        <p><kbd className="bg-gray-700 px-4 py-2 rounded">F</kbd> Finish Match</p>
+        {!isCompleted && (
+          <>
+            <p><kbd className="bg-gray-700 px-4 py-2 rounded">←</kbd> Point for Player A</p>
+            <p><kbd className="bg-gray-700 px-4 py-2 rounded">→</kbd> Point for Player B</p>
+            {hasWinner && <p><kbd className="bg-gray-700 px-4 py-2 rounded">F</kbd> Finish Match</p>}
+          </>
+        )}
+        {isCompleted && (
+          <p><kbd className="bg-gray-700 px-4 py-2 rounded">N</kbd> Start New Match</p>
+        )}
       </div>
     </div>
   );
