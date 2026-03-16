@@ -467,12 +467,12 @@ npm start
 - [ ] GET /api/ratings/leaderboard
 
 ### UI Pages
-- [x] Home page (updated with 4 sections)
+- [x] Home page (updated with 6 sections)
 - [x] Kiosk page (interactive scoreboard)
 - [x] Podium page (real data with avatars)
 - [x] Players management
 - [x] Ratings leaderboard
-- [ ] Match history
+- [x] Match history (with filter and search)
 
 ### Features
 - [x] Keyboard controls (full implementation)

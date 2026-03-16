@@ -120,6 +120,12 @@ src/
   - Win/loss stats
   - Win rate percentages
   - Total matches played
+- `/matches` - **Match History**
+  - Complete match archive
+  - Filter by status (All, Completed, In Progress)
+  - Search by player name
+  - Rating changes for each match
+  - Winner highlights
 - `/podium` - **Top 3 Players Display**
   - Live data from API
   - Player avatars
