@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Scoreboard from '../components/kiosk/Scoreboard';
 ---
 
 <Layout title="Kiosk - Ping Pong Party">
@@ -7,83 +8,14 @@ import Layout from '../layouts/Layout.astro';
     <div class="max-w-7xl mx-auto">
       <h1 class="text-6xl font-black text-center mb-8">Live Scoreboard</h1>
 
-      <div id="scoreboard" class="bg-gray-800 rounded-3xl p-12 shadow-2xl mb-8">
-        <div class="grid grid-cols-3 gap-8 items-center">
-          <!-- Player A -->
-          <div class="text-center">
-            <h2 class="text-4xl font-bold mb-4" id="playerA-name">Player A</h2>
-            <div class="text-9xl font-black" id="scoreA">0</div>
-          </div>
+      <!-- React Scoreboard component -->
+      <Scoreboard client:load />
 
-          <!-- VS -->
-          <div class="text-center">
-            <div class="text-6xl font-bold text-gray-500">VS</div>
-          </div>
-
-          <!-- Player B -->
-          <div class="text-center">
-            <h2 class="text-4xl font-bold mb-4" id="playerB-name">Player B</h2>
-            <div class="text-9xl font-black" id="scoreB">0</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center text-gray-400 text-2xl">
-        <p>Press ← to score for Player A</p>
-        <p>Press → to score for Player B</p>
-        <p>Press S to start new match</p>
+      <div class="text-center mt-8">
+        <a href="/" class="text-2xl text-blue-400 hover:text-blue-300 transition-colors">
+          ← Back to Home
+        </a>
       </div>
     </div>
   </main>
 </Layout>
-
-<script>
-  // Keyboard controls for kiosk mode
-  let scoreA = 0;
-  let scoreB = 0;
-
-  document.addEventListener('keydown', (e) => {
-    const scoreAEl = document.getElementById('scoreA');
-    const scoreBEl = document.getElementById('scoreB');
-
-    if (!scoreAEl || !scoreBEl) return;
-
-    if (e.key === 'ArrowLeft') {
-      // Score for Player A
-      scoreA++;
-      scoreAEl.textContent = scoreA.toString();
-
-      // Check for winner
-      if (scoreA >= 11 && scoreA - scoreB >= 2) {
-        setTimeout(() => {
-          alert('Player A wins!');
-          resetScores();
-        }, 500);
-      }
-    } else if (e.key === 'ArrowRight') {
-      // Score for Player B
-      scoreB++;
-      scoreBEl.textContent = scoreB.toString();
-
-      // Check for winner
-      if (scoreB >= 11 && scoreB - scoreA >= 2) {
-        setTimeout(() => {
-          alert('Player B wins!');
-          resetScores();
-        }, 500);
-      }
-    } else if (e.key === 's' || e.key === 'S') {
-      // Start new match
-      resetScores();
-    }
-  });
-
-  function resetScores() {
-    scoreA = 0;
-    scoreB = 0;
-    const scoreAEl = document.getElementById('scoreA');
-    const scoreBEl = document.getElementById('scoreB');
-    if (scoreAEl) scoreAEl.textContent = '0';
-    if (scoreBEl) scoreBEl.textContent = '0';
-  }
-</script>
