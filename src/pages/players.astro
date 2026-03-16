@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PlayerList from '../components/players/PlayerList';
+---
+
+<Layout title="Players - Ping Pong Party">
+  <main class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-8 text-center">
+        <h1 class="text-6xl font-black text-white mb-4">Players</h1>
+        <p class="text-xl text-gray-400">Manage players and view ratings</p>
+      </div>
+
+      <!-- React component with client-side interactivity -->
+      <PlayerList client:load />
+
+      <div class="text-center mt-12">
+        <a href="/" class="text-2xl text-blue-400 hover:text-blue-300 transition-colors">
+          ← Back to Home
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>

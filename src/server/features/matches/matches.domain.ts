@@ -113,3 +113,41 @@ export async function ongoingMatch(): Promise<Match | null> {
     rated: (row[13] as number) !== 0,
   };
 }
+
+export async function allMatches(): Promise<{ matches: Match[]; totalCount: number }> {
+  const db = await database();
+
+  // Get total count
+  const countResult = db.exec('SELECT COUNT(*) as count FROM matches');
+  const totalCount = countResult.length > 0 ? (countResult[0].values[0][0] as number) : 0;
+
+  // Get all matches
+  const result = db.exec('SELECT * FROM matches ORDER BY startedAt DESC');
+
+  const matches: Match[] = [];
+  if (result.length > 0) {
+    for (const row of result[0].values) {
+      matches.push({
+        id: row[0] as MatchId,
+        playerA: row[1] ? {
+          id: row[1] as any,
+          ratingBefore: row[2] as number,
+          ratingAfter: (row[3] as number | null) || undefined,
+        } : undefined,
+        playerB: row[4] ? {
+          id: row[4] as any,
+          ratingBefore: row[5] as number,
+          ratingAfter: (row[6] as number | null) || undefined,
+        } : undefined,
+        scoreA: row[7] as number,
+        scoreB: row[8] as number,
+        status: row[9] as MatchStatus,
+        startedAt: row[10] as number,
+        completedAt: (row[11] as number | null) || undefined,
+        rated: (row[13] as number) !== 0,
+      });
+    }
+  }
+
+  return { matches, totalCount };
+}
