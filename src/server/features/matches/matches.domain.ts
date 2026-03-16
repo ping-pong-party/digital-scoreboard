@@ -1,11 +1,36 @@
 // Match-specific business logic and validation
 // Based on the existing implementation from hackathon-2025-ping-pong-party
 
+import { z } from 'zod';
 import { database, saveDb } from '../../db/index';
-import type { Match, MatchId } from '../../shared/types';
+import type { Match as SharedMatch, MatchId } from '../../shared/types';
 import { now } from '../../shared/utils';
+import { matchCreateSchema, matchUpdateScoreSchema, matchAssignPlayersSchema } from './matches.types';
 
 export type MatchStatus = 'IN_PROGRESS' | 'COMPLETED';
+export type Match = SharedMatch;
+
+// Validation error
+export class ValidationError extends Error {
+  constructor(message: string, public field?: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+// Generic validation helper
+export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    const firstError = result.error.errors[0];
+    if (firstError) {
+      throw new ValidationError(firstError.message, firstError.path.join('.'));
+    } else {
+      throw new ValidationError('Validation failed');
+    }
+  }
+  return result.data;
+}
 
 // Match business logic
 export function hasWinner(scoreA: number, scoreB: number): boolean {
@@ -16,6 +41,43 @@ export function winnerOf(scoreA: number, scoreB: number): 'A' | 'B' | null {
   if (scoreA >= 11 && scoreA - scoreB >= 2) return 'A';
   if (scoreB >= 11 && scoreB - scoreA >= 2) return 'B';
   return null;
+}
+
+// Match-specific validations
+export function validateMatchCreation(playerA?: any, playerB?: any) {
+  return validateInput(matchCreateSchema, { playerA, playerB });
+}
+
+export function validateScoreUpdate(scoreA: number, scoreB: number) {
+  return validateInput(matchUpdateScoreSchema, { scoreA, scoreB });
+}
+
+export function validatePlayerAssignment(playerA?: any, playerB?: any) {
+  return validateInput(matchAssignPlayersSchema, { playerA, playerB });
+}
+
+// Match business rule validations
+export function validateNoOngoingMatch(matches: Match[]): void {
+  const ongoing = matches.find((m) => m.status === 'IN_PROGRESS');
+  if (ongoing) {
+    throw new ValidationError('Another match is already in progress');
+  }
+}
+
+export function validateMatchCanBeModified(match: Match | null): void {
+  if (!match) {
+    throw new ValidationError('Match not found');
+  }
+  if (match.status !== 'IN_PROGRESS') {
+    throw new ValidationError('Match is not in progress');
+  }
+}
+
+export function validateCanFinish(match: Match): void {
+  validateMatchCanBeModified(match);
+  if (!hasWinner(match.scoreA, match.scoreB)) {
+    throw new ValidationError('Match does not have a winner yet');
+  }
 }
 
 // Database operations
