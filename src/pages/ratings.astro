@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Leaderboard from '../components/ratings/Leaderboard';
+---
+
+<Layout title="Ratings - Ping Pong Party">
+  <main class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-8 text-center">
+        <h1 class="text-7xl font-black text-white mb-4">⭐ Leaderboard</h1>
+        <p class="text-2xl text-gray-400">Top players ranked by ELO rating</p>
+      </div>
+
+      <!-- Leaderboard Component -->
+      <Leaderboard client:load limit={20} />
+
+      <!-- Info Box -->
+      <div class="mt-12 bg-blue-900/30 border-2 border-blue-500/50 rounded-lg p-6">
+        <h3 class="text-2xl font-bold text-blue-400 mb-4">📊 About ELO Ratings</h3>
+        <ul class="space-y-2 text-xl text-gray-300">
+          <li><strong>Starting Rating:</strong> New players start at 1000 ELO</li>
+          <li><strong>K-Factor:</strong> Fixed at 32 for all players</li>
+          <li><strong>Rated Matches:</strong> Both players must be registered</li>
+          <li><strong>Anonymous Matches:</strong> Don't affect ratings</li>
+        </ul>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="mt-12 grid md:grid-cols-3 gap-6">
+        <div class="bg-gray-800 rounded-lg p-6 text-center">
+          <div class="text-5xl font-black text-green-400 mb-2">🎮</div>
+          <div class="text-3xl font-bold text-white" id="total-matches">--</div>
+          <div class="text-gray-400">Total Matches</div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-6 text-center">
+          <div class="text-5xl font-black text-blue-400 mb-2">👥</div>
+          <div class="text-3xl font-bold text-white" id="total-players">--</div>
+          <div class="text-gray-400">Total Players</div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-6 text-center">
+          <div class="text-5xl font-black text-purple-400 mb-2">🏆</div>
+          <div class="text-3xl font-bold text-white" id="highest-rating">--</div>
+          <div class="text-gray-400">Highest Rating</div>
+        </div>
+      </div>
+
+      <div class="text-center mt-12">
+        <a href="/" class="text-2xl text-blue-400 hover:text-blue-300 transition-colors">
+          ← Back to Home
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Fetch stats
+  async function fetchStats() {
+    try {
+      const [matchesRes, playersRes] = await Promise.all([
+        fetch('/api/matches'),
+        fetch('/api/players'),
+      ]);
+
+      const matchesData = await matchesRes.json();
+      const playersData = await playersRes.json();
+
+      const totalMatches = matchesData.totalCount || 0;
+      const totalPlayers = playersData.length || 0;
+      const highestRating = Math.max(...playersData.map((p: any) => p.rating), 1000);
+
+      document.getElementById('total-matches')!.textContent = totalMatches.toString();
+      document.getElementById('total-players')!.textContent = totalPlayers.toString();
+      document.getElementById('highest-rating')!.textContent = highestRating.toString();
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  }
+
+  fetchStats();
+</script>
