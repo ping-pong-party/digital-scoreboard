@@ -94,11 +94,18 @@ src/
 
 ## Keyboard Controls (Kiosk Mode)
 
-**Match Management:**
-- **N** - Start new match
-- **S** - Start match (in player selection)
+### Match Management
+- **N** - Start new match (from scoreboard)
 
-**During Match:**
+### Player Selection (Grid Navigation)
+- **↑ ↓ ← →** - Navigate through players
+- **Enter** - Select highlighted player
+  - First selection = Player A (blue border)
+  - Second selection = Player B (purple border)
+- **ESC** - Deselect player (reverse order)
+- **S** - Start match with selected players
+
+### During Match
 - **←** (Left Arrow) - Award point to Player A
 - **→** (Right Arrow) - Award point to Player B
 - **F** - Finish match (when winner exists)

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Match } from '../../server/shared/types';
-import MatchStarter from './MatchStarter';
+import MatchStarterKeyboard from './MatchStarterKeyboard';
 
 export default function Scoreboard() {
   const [match, setMatch] = useState<Match | null>(null);
@@ -127,7 +127,7 @@ export default function Scoreboard() {
   if (!match) {
     if (showStarter) {
       return (
-        <MatchStarter
+        <MatchStarterKeyboard
           onMatchStarted={() => {
             setShowStarter(false);
             fetchMatch();
@@ -155,7 +155,7 @@ export default function Scoreboard() {
   // Show match starter if requested
   if (showStarter) {
     return (
-      <MatchStarter
+      <MatchStarterKeyboard
         onMatchStarted={() => {
           setShowStarter(false);
           fetchMatch();
