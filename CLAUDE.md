@@ -406,16 +406,57 @@ Use conventional commits for semantic-release:
 - Anonymous matches: rated = false (no ELO change)
 - Ratings recalculated on match finish
 
+## Completed Features (Phase 2)
+
+### Players ✅
+- [x] Full CRUD operations
+- [x] Gravatar integration with MD5 hashing
+- [x] Player avatars in all UI
+- [x] Validation (cannot delete player with matches)
+- [x] `/players` page with React component
+
+### Matches ✅
+- [x] Create match (rated/anonymous)
+- [x] Update score
+- [x] Finish match with ELO calculation
+- [x] Match history page with filter/search
+- [x] `/matches` page with complete archive
+- [x] Real-time polling updates
+
+### Kiosk ✅
+- [x] Interactive scoreboard
+- [x] Match creation UI with player selection
+- [x] Keyboard controls (← → F N S)
+- [x] Live score updates
+- [x] Winner detection
+- [x] Match completion flow
+
+### Ratings ✅
+- [x] Leaderboard API
+- [x] Win/loss tracking
+- [x] Win rate calculation
+- [x] `/ratings` page with top 20
+- [x] Medal system for top 3
+- [x] Stats grid (matches, players, highest rating)
+
+### Podium ✅
+- [x] Top 3 display with real data
+- [x] Player avatars
+- [x] Auto-refresh (30s)
+- [x] `/podium` page for hallway TV
+
 ## Known Issues and TODOs
 
-- [ ] Auth0 middleware not yet implemented
-- [ ] Real-time updates (SSE) needs implementation
+### Phase 2 Remaining
+- [ ] Auth0 middleware implementation
+- [ ] SSE for real-time updates (currently using polling)
+
+### Phase 3 Planned
 - [ ] PWA manifest and service worker
-- [ ] Push notification setup
-- [ ] Player management UI
+- [ ] Push notifications
 - [ ] Tournament mode migration
 - [ ] Video replay feature
-- [ ] Gravatar integration for player avatars
+- [ ] Season system (weekly/monthly leaderboards)
 
 ## Related Documentation
 
