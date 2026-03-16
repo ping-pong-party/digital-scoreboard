@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "start": "node dist/server/index.js",
     "type-check": "tsc --noEmit",
-    "astro": "astro"
+    "astro": "astro",
+    "generate-icons": "bash scripts/generate-icons.sh"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.5",

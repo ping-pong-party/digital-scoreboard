@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Scoreboard from '../components/kiosk/Scoreboard';
+import AdaptiveHome from '../components/AdaptiveHome';
 ---
 
 <Layout title="Ping Pong Party">
   <main class="min-h-screen bg-gray-900 text-white">
-    <!-- React Scoreboard component - full screen -->
-    <Scoreboard client:load />
+    <!-- Adaptive component - renders mobile or kiosk UI based on device -->
+    <AdaptiveHome client:load />
   </main>
 </Layout>

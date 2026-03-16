@@ -15,11 +15,18 @@ Real-time ping pong scoreboard and ELO tracker built with Astro, Webcore, and Au
 - ⭐ **Leaderboard** - Ranked by rating with win/loss stats
 - 🥇 **Podium Display** - Top 3 players for hallway TV display
 - 📊 **Match Tracking** - Full history with rating changes
+- 📱 **PWA Support** - Progressive web app with mobile interface
+  - Install on mobile devices (Add to Home Screen)
+  - Offline support with service worker caching
+  - Touch-optimized UI for phones/tablets
+  - Auto-detects device type (mobile vs TV)
+  - Haptic feedback on touch interactions
+  - Real-time sync across all devices
 
 ### 🚧 Planned
 - 🔐 **Auth0 Integration** - Secure authentication on all operations
-- 📱 **PWA Support** - Mobile-friendly progressive web app
 - 🔔 **Push Notifications** - Get notified when matches start
+- 🔄 **Background Sync** - Queue offline score updates
 
 ## Tech Stack
 
@@ -180,6 +187,39 @@ src/
 
 **Ratings:**
 - `GET /api/ratings/leaderboard?limit=10` - Get top players with stats
+
+## PWA (Progressive Web App)
+
+The app includes full PWA support for mobile devices:
+
+- **Install**: Add to home screen on iOS/Android
+- **Offline**: Service worker caches data for offline viewing
+- **Mobile UI**: Touch-optimized interface auto-detects mobile devices
+- **Real-time Sync**: Scores update across all devices in real-time
+
+### Setup
+
+1. Generate PWA icons (required):
+   ```bash
+   # See PWA-SETUP.md for detailed instructions
+   cd public/icons
+   # Generate icons from icon.svg at sizes: 72, 96, 128, 144, 152, 192, 384, 512
+   ```
+
+2. The app automatically detects device type:
+   - **Mobile/Tablet**: Shows touch-friendly UI with large buttons
+   - **Desktop/TV**: Shows keyboard-driven kiosk interface
+
+3. See [PWA-SETUP.md](PWA-SETUP.md) for complete setup and testing guide
+
+### Mobile Features
+
+- Large touch-friendly score buttons
+- Visual player selection with avatars
+- Haptic feedback on interactions
+- Pull-to-refresh for leaderboard
+- Works offline with cached data
+- Real-time updates when online
 
 ## Documentation
 
