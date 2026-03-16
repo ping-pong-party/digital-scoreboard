@@ -430,10 +430,10 @@ npm start
 - ✅ Match domain logic
 - ✅ Basic pages
 
-### Phase 2: Core Features 🚧 IN PROGRESS (30%)
-- ✅ Players domain (30%)
-- ⏳ Matches API (0%)
-- ⏳ Kiosk improvements (20%)
+### Phase 2: Core Features 🚧 IN PROGRESS (85%)
+- ✅ Players domain (100%) - Full CRUD + Gravatar
+- ✅ Matches API (100%) - Create, score, finish with ELO
+- ✅ Kiosk improvements (95%) - Scoreboard + Match starter
 - ⏳ Ratings API (0%)
 - ⏳ Auth0 integration (0%)
 
@@ -449,33 +449,39 @@ npm start
 - [x] Database setup
 - [x] ELO calculations
 - [x] Match validation
-- [ ] Player validation
-- [ ] Match CRUD operations
-- [ ] Player CRUD operations
+- [x] Player validation
+- [x] Match CRUD operations
+- [x] Player CRUD operations
 
 ### API Endpoints
-- [ ] GET /api/players
-- [ ] POST /api/players
-- [ ] GET /api/matches
-- [ ] POST /api/matches
-- [ ] PUT /api/matches/:id/score
-- [ ] POST /api/matches/:id/finish
+- [x] GET /api/players
+- [x] POST /api/players
+- [x] PUT /api/players/:id
+- [x] DELETE /api/players/:id
+- [x] GET /api/matches
+- [x] POST /api/matches
+- [x] GET /api/matches/ongoing
+- [x] POST /api/matches/score
+- [x] POST /api/matches/finish
 - [ ] GET /api/kiosk/stream (SSE)
 - [ ] GET /api/ratings/leaderboard
 
 ### UI Pages
 - [x] Home page
-- [x] Kiosk page (basic)
+- [x] Kiosk page (interactive scoreboard)
 - [x] Podium page (basic)
-- [ ] Players management
+- [x] Players management
 - [ ] Match history
 - [ ] Ratings leaderboard
 
 ### Features
-- [ ] Keyboard controls (full implementation)
-- [ ] Real-time updates
+- [x] Keyboard controls (full implementation)
+- [x] Real-time updates (polling)
+- [x] Match creation UI
+- [x] Player selection
+- [x] Gravatar avatars
 - [ ] Auth0 integration
-- [ ] Gravatar avatars
+- [ ] SSE (currently using polling)
 - [ ] PWA manifest
 - [ ] Push notifications
 

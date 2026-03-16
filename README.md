@@ -84,17 +84,44 @@ src/
 
 ## Keyboard Controls (Kiosk Mode)
 
+**Match Management:**
+- **N** - Start new match
+- **S** - Start match (in player selection)
+
+**During Match:**
 - **←** (Left Arrow) - Award point to Player A
 - **→** (Right Arrow) - Award point to Player B
-- **S** - Start new match
+- **F** - Finish match (when winner exists)
 
 ## Routes
 
 - `/` - Home page with navigation
-- `/kiosk` - Keyboard-driven scoreboard for TV
-- `/podium` - Today's top players display
+- `/kiosk` - **Full interactive scoreboard**
+  - Select players
+  - Live scoring with keyboard controls
+  - Automatic ELO calculation
+  - Start new matches
+- `/players` - **Player management**
+  - Add/delete players
+  - Gravatar integration
+  - View ratings
+- `/podium` - Today's top players display (static demo)
 - `/demo` - React integration demo
-- `/players` - Player management (coming soon)
+
+## API Endpoints
+
+**Players:**
+- `GET /api/players` - List all players
+- `POST /api/players` - Create player
+- `PUT /api/players/:id` - Update player
+- `DELETE /api/players/:id` - Delete player
+
+**Matches:**
+- `GET /api/matches` - List all matches
+- `POST /api/matches` - Create match
+- `GET /api/matches/ongoing` - Get current match
+- `POST /api/matches/score` - Update score
+- `POST /api/matches/finish` - Finish match & calculate ELO
 
 ## Documentation
 
